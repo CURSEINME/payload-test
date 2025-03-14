@@ -10,6 +10,11 @@ export const searchFields: Field[] = [
     },
   },
   {
+    name: 'article',
+    type: 'text',
+    index: true,
+  },
+  {
     name: 'meta',
     label: 'Meta',
     type: 'group',

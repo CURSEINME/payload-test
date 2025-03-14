@@ -1,24 +1,45 @@
 // storage-adapter-import-placeholder
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
+import { s3Storage } from '@payloadcms/storage-s3'
 
 import sharp from 'sharp' // sharp-import
 import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
+import { ru } from '@payloadcms/translations/languages/ru'
+import { en } from '@payloadcms/translations/languages/en'
 
 import { Categories } from './collections/Categories'
-import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
-import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
+import { Posts } from './collections/Posts'
+import { Products } from './collections/Products'
+import { Media } from './collections/Media'
+import { Files } from './collections/Files'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+
+if (!process.env.S3_BUCKET) {
+  throw new Error('Missing S3_BUCKET environment variable')
+}
+if (!process.env.S3_ACCESS_KEY_ID) {
+  throw new Error('Missing S3_ACCESS_KEY_ID environment variable')
+}
+if (!process.env.S3_SECRET_ACCESS_KEY) {
+  throw new Error('Missing S3_SECRET_ACCESS_KEY environment variable')
+}
+if (!process.env.S3_REGION) {
+  throw new Error('Missing S3_REGION environment variable')
+}
+if (!process.env.S3_ENDPOINT) {
+  throw new Error('Missing S3_ENDPOINT environment variable')
+}
 
 export default buildConfig({
   admin: {
@@ -62,12 +83,31 @@ export default buildConfig({
   db: mongooseAdapter({
     url: process.env.DATABASE_URI || '',
   }),
-  collections: [Pages, Posts, Media, Categories, Users],
+  collections: [Pages, Posts, Categories, Users, Products, Media, Files],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer],
+  i18n: {
+    fallbackLanguage: 'en',
+    supportedLanguages: { en, ru },
+  },
   plugins: [
     ...plugins,
-    // storage-adapter-placeholder
+    s3Storage({
+      collections: {
+        media: {
+          prefix: 'media',
+        },
+      },
+      bucket: process.env.S3_BUCKET,
+      config: {
+        credentials: {
+          accessKeyId: process.env.S3_ACCESS_KEY_ID,
+          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+        },
+        region: process.env.S3_REGION,
+        endpoint: process.env.S3_ENDPOINT,
+      },
+    }),
   ],
   secret: process.env.PAYLOAD_SECRET,
   sharp,

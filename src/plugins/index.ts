@@ -82,12 +82,12 @@ export const plugins: Plugin[] = [
     },
   }),
   searchPlugin({
-    collections: ['posts'],
+    collections: ['products'],
     beforeSync: beforeSyncWithSearch,
     searchOverrides: {
-      fields: ({ defaultFields }) => {
-        return [...defaultFields, ...searchFields]
-      },
+      fields: ({ defaultFields }) => [
+        ...defaultFields, ...searchFields
+      ],
     },
   }),
   payloadCloudPlugin(),

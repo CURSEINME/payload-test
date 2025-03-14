@@ -1,10 +1,17 @@
 import type { FieldHook } from 'payload'
 
-export const formatSlug = (val: string): string =>
-  val
-    .replace(/ /g, '-')
-    .replace(/[^\w-]+/g, '')
+import { transliterate } from 'transliteration'
+
+export const formatSlug = (val: string): string => {
+  const transliteratedValue = transliterate(val)
+
+  return transliteratedValue
     .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim()
+}
 
 export const formatSlugHook =
   (fallback: string): FieldHook =>
