@@ -44,6 +44,8 @@ if (!process.env.S3_ENDPOINT) {
 export default buildConfig({
   admin: {
     components: {
+      // Nav: '@/components/CustomNav',  
+      afterNavLinks: ['@/components/CustomNav'],
       // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
       // Feel free to delete this at any time. Simply remove the line below and the import `BeforeLogin` statement on line 15.
       beforeLogin: ['@/components/BeforeLogin'],
